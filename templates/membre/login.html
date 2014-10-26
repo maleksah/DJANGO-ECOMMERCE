@@ -1,0 +1,43 @@
+{% extends "index.html" %}
+{% load staticfiles %}
+{% load DjangoCMS_extras %}
+{% block title %}Connexion{% endblock %}
+{% block header_slide %}{% endblock %}
+{% block content %}
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css" media="all"/>
+    <link href="{% static "css/forms.css" %}" rel="stylesheet" type="text/css" media="all"/>
+    <script>
+        $(document).ready(function () {
+            $('#connexion').addClass("active")
+        });
+    </script>
+    <h1>Se connecter</h1>
+
+    {% if error %}
+        <p><strong class="red">Utilisateur inexistant ou mauvais mot de passe</strong></p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        Vous êtes déja connecté(e),     {{ user.username }}
+    {% else %}
+        <form method="post" action="{% url "membre.views.connexion" %}">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field|add_css_attributes:"form-control" }}
+                    <span class="red">{{ field.errors}}</span>
+                </div>
+            {% endfor %}
+            <input type="submit" value="Se connecter"/>
+        </form>
+
+{#        <form method="post" action="{% url "membre.views.connexion" %}">#}
+{#            {% csrf_token %}#}
+{#            {{ form.as_p }}#}
+{#            <input type="submit" value="Se connecter"/>#}
+{#        </form>#}
+    {% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,34 @@
+{% extends "index.html" %}
+{% load staticfiles %}
+{% load DjangoCMS_extras %}
+{% block title %}Paiement{% endblock %}
+{% block header_slide %}{% endblock %}
+{% block content %}
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css" media="all"/>
+    <br/>
+    <h1>Votre commande :</h1>
+    <table class="table">
+    <thead>
+        <th><b>Produit</b></th>
+        <th><b>Quantité</b></th>
+        <th><b>Prix unitaire</b></th>
+    </thead>
+        {% for p in produits_panier %}
+            <tr>
+                <td>{{ p.produit.libelle }}</td>
+                <td>{{ p.quantite }}</td>
+                <td>{{ p.produit.prix }}</td>
+            </tr>
+        {% endfor %}
+    <tfoot>
+        <td></td>
+        <td></td>
+        <td><b>Total : {{ total_panier }}€</b></td>
+    </tfoot>
+    </table>
+    <p><b>Adresse de livraison : </b>{{ adresse_livraison }}</p>
+
+    <h1>Choisissez le mode de paiement</h1><br/>
+    <!-- writes out the form tag automatically -->
+    {{ form_paiement.render }}
+{% endblock %}

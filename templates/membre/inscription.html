@@ -1,0 +1,27 @@
+{% extends "index.html" %}
+{% load staticfiles %}
+{% load DjangoCMS_extras %}
+{% block title %}Inscription{% endblock %}
+{% block header_slide %}{% endblock %}
+{% block content %}
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css" media="all"/>
+    <link href="{% static "css/forms.css" %}" rel="stylesheet" type="text/css" media="all"/>
+    <script>
+        $(document).ready(function () {
+            $('#inscription').addClass("active")
+        });
+    </script>
+    <h1>Inscription</h1>
+    <form action="{% url "membre.views.inscription" %}" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                <label>{{ field.label }}</label>
+                {{ field|add_css_attributes:"form-control" }}
+                <span class="red">{{ field.errors}}</span>
+            </div>
+        {% endfor %}
+        <input type="submit" value="s'inscrire"/>
+    </form>
+{% endblock %}
+

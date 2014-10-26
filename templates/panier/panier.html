@@ -1,0 +1,97 @@
+{% extends "index.html" %}
+{% load staticfiles %}
+{% load DjangoCMS_extras %}
+{% block title %}Panier{% endblock %}
+{% block header_slide %}{% endblock %}
+{% block content %}
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css" media="all"/>
+    <link href="{% static "css/forms.css" %}" rel="stylesheet" type="text/css" media="all"/>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#panier').addClass("active")
+            var panier_cost = {{ total_panier }}
+            var nbr_produits_panier = {{ nbr_produits_panier }}
+            $('.increment').click(function () {
+                var prod_panier_id;
+                prod_panier_id = $(this).attr("data-id");
+                $.get('/panier/increment_quantite_produit/', {id: prod_panier_id, total_panier:panier_cost, nbr_produits_panier: nbr_produits_panier}, function (data) {
+                    $('#quantite_produit_'+prod_panier_id).html(data['quantite']);
+                    panier_cost = data['total'];
+                    nbr_produits_panier = data['nbr_produits_panier']
+                    $('.total').html(data['total']);
+                    $('.nbr_prod_panier').html(data['nbr_produits_panier']);
+                });
+            });
+            $('.decrement').click(function () {
+                var prod_panier_id;
+                prod_panier_id = $(this).attr("data-id");
+                $.get('/panier/decrement_quantite_produit/', {id: prod_panier_id, total_panier:panier_cost, nbr_produits_panier:nbr_produits_panier}, function (data) {
+                    $('#quantite_produit_'+prod_panier_id).html(data['quantite']);
+                    panier_cost = data['total'];
+                    $('.total').html(data['total']);
+                    nbr_produits_panier = data['nbr_produits_panier'];
+                    $('.nbr_prod_panier').html(data['nbr_produits_panier'])
+                });
+            });
+        });
+    </script>
+    <h1>Votre panier</h1>
+    <div style="color: red;">{{ erreur_disponibilite_msg|linebreaks}}</div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th><strong>Photo</strong></th>
+            <th><strong>Référence</strong></th>
+            <th><strong>Quantité</strong></th>
+            <th><strong>Prix unitaire</strong></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for p in produits_panier %}
+            <tr>
+                <td><a href="{% url "articles.views.articleById" p.produit.id p.produit.slug %}"><img src="{{ MEDIA_URL }}{{ p.produit.photo }}"
+                                     style="height: 180px; width: 200px;"></a></td>
+                <td>{{ p.produit.libelle }}</td>
+                <td>
+                    <div >
+                        <b id="quantite_produit_{{ p.id }}">{{ p.quantite }}</b>
+                        <img class="increment" data-id="{{ p.id }}" src="{% static "images/plus.png" %}" style="width:20px;height: 20px"/>
+                        <img class="decrement" data-id="{{ p.id }}" src="{% static "images/minus.png" %}" style="width:20px;height: 20px"/>
+                    </div>
+                </td>
+                <td>{{ p.produit.prix }}€</td>
+                <td><a href="{% url 'panier.views.supprimer_produit_panier' p.produit.id %}"><img
+                        src="{% static "images/delete_icon.png" %}" style="height: 30px; width: 30px;"/></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3"><strong>Aucun article dans le panier</strong></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td></td>
+            <td></td>
+            <td><strong>Total : <span class="total">{{ total_panier }}</span>€</strong></td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <div>
+        <form action="{% url "panier.views.afficher_panier" %}" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field|add_css_attributes:"form-control" }}
+                    <span class="red">{{ field.errors }}</span>
+                </div>
+            {% endfor %}
+            <input type="submit" value="Valider panier"/>
+        </form>
+    </div>
+
+{% endblock %}
+
